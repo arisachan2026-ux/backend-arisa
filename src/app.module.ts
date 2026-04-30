@@ -1,5 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 // Config
 import configuration from './common/config/configuration';
@@ -42,6 +43,18 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     PrismaModule,
     RedisModule,
     SupabaseModule,
+
+    // Rate limiting — global throttle guard
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ([
+        {
+          ttl: (config.get<number>('throttle.ttl', 60)) * 1000,
+          limit: config.get<number>('throttle.limit', 100),
+        },
+      ]),
+    }),
 
     // Feature modules
     HealthModule,

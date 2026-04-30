@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Patch,
+  Delete,
   Body,
   UseGuards,
   HttpCode,
@@ -44,5 +45,14 @@ export class UserController {
     @Body() dto: UpdateProfileDto,
   ) {
     return this.userService.updateProfile(userId, dto);
+  }
+
+  @Delete('me')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete (soft) current user account' })
+  @ApiResponse({ status: 200, description: 'Account deleted' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async deleteAccount(@CurrentUser('id') userId: string) {
+    return this.userService.deleteAccount(userId);
   }
 }

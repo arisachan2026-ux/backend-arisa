@@ -40,4 +40,10 @@ export const envValidationSchema = Joi.object({
   OPENROUTER_TIMEOUT_MS: Joi.number().default(30000),
   AI_USER_RATE_LIMIT_PER_MINUTE: Joi.number().default(10),
   AI_USER_RATE_LIMIT_PER_HOUR: Joi.number().default(100),
+
+  // CORS
+  CORS_ORIGINS: Joi.string().default(''),
+
+  // Direct URL for Prisma migrations (bypasses PgBouncer)
+  DIRECT_URL: Joi.string().default(''),
 });

@@ -1,8 +1,8 @@
 import {
-  Controller, Get, Post, Param, Query,
+  Controller, Get, Post, Patch, Param, Query, Body,
   UseGuards, HttpCode, HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { AuditService } from '../audit/audit.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -23,7 +23,7 @@ export class AdminController {
   ) {}
 
   @Get('dashboard')
-  @ApiOperation({ summary: 'Get admin dashboard stats' })
+  @ApiOperation({ summary: 'Get admin dashboard stats (includes AI & session counts)' })
   async dashboard() {
     return this.adminService.getDashboard();
   }
@@ -80,6 +80,19 @@ export class AdminController {
     return this.auditService.query({ action, actorType, actorId, page, limit });
   }
 
+  @Get('sessions')
+  @ApiOperation({ summary: 'List IoT session summaries' })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  async listSessionSummaries(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.adminService.listSessionSummaries(page, limit);
+  }
+
+  // ─── Device Management ───────────────────────────────────
+
   @Post('devices/:id/disable')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Disable a device' })
@@ -88,5 +101,42 @@ export class AdminController {
     @CurrentUser('id') adminId: string,
   ) {
     return this.adminService.disableDevice(deviceId, adminId);
+  }
+
+  @Post('devices/:id/enable')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Re-enable a disabled device' })
+  async enableDevice(
+    @Param('id') deviceId: string,
+    @CurrentUser('id') adminId: string,
+  ) {
+    return this.adminService.enableDevice(deviceId, adminId);
+  }
+
+  // ─── User Management ────────────────────────────────────
+
+  @Patch('users/:id/role')
+  @Roles(UserRole.SUPER_ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Change user role (SUPER_ADMIN only)' })
+  @ApiBody({ schema: { properties: { role: { type: 'string', enum: ['USER', 'ADMIN'] } } } })
+  async updateUserRole(
+    @Param('id') userId: string,
+    @Body('role') role: string,
+    @CurrentUser('id') adminId: string,
+  ) {
+    return this.adminService.updateUserRole(userId, role, adminId);
+  }
+
+  @Patch('users/:id/status')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Change user status (ACTIVE/SUSPENDED)' })
+  @ApiBody({ schema: { properties: { status: { type: 'string', enum: ['ACTIVE', 'SUSPENDED'] } } } })
+  async updateUserStatus(
+    @Param('id') userId: string,
+    @Body('status') status: string,
+    @CurrentUser('id') adminId: string,
+  ) {
+    return this.adminService.updateUserStatus(userId, status, adminId);
   }
 }

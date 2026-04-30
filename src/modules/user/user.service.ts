@@ -87,4 +87,34 @@ export class UserService {
 
     return updated;
   }
+
+  /**
+   * Soft-delete user account.
+   * Sets status to DELETED and revokes all device pairings.
+   */
+  async deleteAccount(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(ErrorCode.AUTH_USER_NOT_FOUND);
+    }
+
+    // Revoke all device pairings
+    await this.prisma.userDevice.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+
+    // Soft delete user
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { status: 'DELETED' as any },
+    });
+
+    this.logger.warn(`Account deleted (soft): ${userId}`);
+
+    return { message: 'Account deleted successfully' };
+  }
 }

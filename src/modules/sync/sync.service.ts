@@ -284,4 +284,52 @@ export class SyncService {
       throw new BadRequestException(ErrorCode.SYNC_OWNERSHIP_MISMATCH);
     }
   }
+
+  /**
+   * Ingest IoT session summary from Raspberry Pi.
+   * These summaries are used by AI Gateway to inject agricultural context
+   * into the AI system prompt (via buildIotContext).
+   */
+  async ingestSessionSummary(
+    dto: {
+      userId: string;
+      sessionStart: string;
+      sessionEnd: string;
+      summary: string;
+      metrics: Record<string, any>;
+      alerts?: any[];
+      recommendations?: any[];
+      dataPointCount: number;
+    },
+    deviceId: string,
+  ) {
+    // Validate device-user ownership
+    await this.validateDeviceOwnership(deviceId, dto.userId);
+
+    const record = await this.prisma.sessionSummary.create({
+      data: {
+        deviceId,
+        userId: dto.userId,
+        sessionStart: new Date(dto.sessionStart),
+        sessionEnd: new Date(dto.sessionEnd),
+        summary: dto.summary,
+        metrics: dto.metrics as any,
+        alerts: (dto.alerts as any) || [],
+        recommendations: (dto.recommendations as any) || [],
+        dataPointCount: dto.dataPointCount,
+      },
+    });
+
+    this.logger.log(
+      `Session summary ingested: ${record.id} (device: ${deviceId}, points: ${dto.dataPointCount})`,
+    );
+
+    return {
+      id: record.id,
+      sessionStart: record.sessionStart,
+      sessionEnd: record.sessionEnd,
+      dataPointCount: record.dataPointCount,
+      syncedAt: record.syncedAt,
+    };
+  }
 }

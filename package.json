@@ -1,8 +1,8 @@
 {
   "name": "arisa-backend",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "version": "1.0.0",
+  "description": "ARISA Cloud Backend — Hybrid IoT-AI agricultural platform powering edge-to-cloud data sync and intelligent farming analysis",
+  "author": "ARISA Team",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

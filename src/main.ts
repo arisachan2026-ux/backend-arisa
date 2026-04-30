@@ -18,7 +18,10 @@ async function bootstrap() {
   // ── CORS ────────────────────────────────────────────────────
   app.enableCors({
     origin: process.env.NODE_ENV === 'production'
-      ? [/* Add production domains here */]
+      ? (process.env.CORS_ORIGINS || '')
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean)
       : true, // Allow all in development
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
