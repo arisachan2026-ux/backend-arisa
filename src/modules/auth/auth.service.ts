@@ -52,15 +52,11 @@ export class AuthService {
       if (authError.message.includes('already registered')) {
         throw new ConflictException(ErrorCode.AUTH_EMAIL_EXISTS);
       }
-      throw new InternalServerErrorException(
-        ErrorCode.SYSTEM_INTERNAL_ERROR,
-      );
+      throw new InternalServerErrorException(ErrorCode.SYSTEM_INTERNAL_ERROR);
     }
 
     if (!authData.user) {
-      throw new InternalServerErrorException(
-        ErrorCode.SYSTEM_INTERNAL_ERROR,
-      );
+      throw new InternalServerErrorException(ErrorCode.SYSTEM_INTERNAL_ERROR);
     }
 
     // Create internal user record
@@ -82,10 +78,9 @@ export class AuthService {
 
     if (!authData.session) {
       // Auto-confirm the user via admin client
-      await this.supabase.getAdminClient().auth.admin.updateUserById(
-        authData.user.id,
-        { email_confirm: true },
-      );
+      await this.supabase
+        .getAdminClient()
+        .auth.admin.updateUserById(authData.user.id, { email_confirm: true });
 
       // Now sign in to get tokens
       const { data: loginData } = await this.supabase

@@ -1,4 +1,9 @@
-import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 
@@ -23,6 +28,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { AiGatewayModule } from './modules/ai-gateway/ai-gateway.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { WeatherModule } from './modules/weather/weather.module';
 
 // Middleware
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
@@ -48,12 +54,12 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ([
+      useFactory: (config: ConfigService) => [
         {
-          ttl: (config.get<number>('throttle.ttl', 60)) * 1000,
+          ttl: config.get<number>('throttle.ttl', 60) * 1000,
           limit: config.get<number>('throttle.limit', 100),
         },
-      ]),
+      ],
     }),
 
     // Feature modules
@@ -68,6 +74,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     NotificationModule,
     AiGatewayModule,
     AdminModule,
+    WeatherModule,
   ],
 })
 export class AppModule implements NestModule {

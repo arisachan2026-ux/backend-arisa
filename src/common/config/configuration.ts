@@ -51,6 +51,14 @@ export default () => ({
     appTitle: process.env.OPENROUTER_APP_TITLE || 'ARISA Smart Agriculture',
   },
 
+  openWeather: {
+    apiKey: process.env.OPENWEATHER_API_KEY || '',
+    cacheTtlMinutes: parseInt(
+      process.env.OPENWEATHER_CACHE_TTL_MINUTES ?? '15',
+      10,
+    ),
+  },
+
   throttle: {
     ttl: parseInt(process.env.THROTTLE_TTL ?? '60', 10),
     limit: parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),

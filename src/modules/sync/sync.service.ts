@@ -99,7 +99,12 @@ export class SyncService {
       }
     }
 
-    return { accepted, skipped, failed: results.length - accepted - skipped, results };
+    return {
+      accepted,
+      skipped,
+      failed: results.length - accepted - skipped,
+      results,
+    };
   }
 
   /**
@@ -268,10 +273,7 @@ export class SyncService {
   /**
    * Validate that device is owned by the specified user.
    */
-  private async validateDeviceOwnership(
-    deviceId: string,
-    userId: string,
-  ) {
+  private async validateDeviceOwnership(deviceId: string, userId: string) {
     const ownership = await this.prisma.userDevice.findFirst({
       where: {
         deviceId,

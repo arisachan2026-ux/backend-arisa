@@ -24,7 +24,12 @@ export interface OpenRouterRequest {
   temperature?: number;
   top_p?: number;
   stop?: string | string[];
-  response_format?: { type: 'json_object' } | { type: 'json_schema'; json_schema: { name: string; strict?: boolean; schema: object } };
+  response_format?:
+    | { type: 'json_object' }
+    | {
+        type: 'json_schema';
+        json_schema: { name: string; strict?: boolean; schema: object };
+      };
   tools?: OpenRouterToolDef[];
   tool_choice?: any;
   /** @deprecated Use tools with openrouter:web_search instead */
@@ -55,7 +60,9 @@ export interface OpenRouterServerToolDef {
 }
 
 /** Combined tool definition — supports both function tools and server tools */
-export type OpenRouterToolDef = OpenRouterFunctionToolDef | OpenRouterServerToolDef;
+export type OpenRouterToolDef =
+  | OpenRouterFunctionToolDef
+  | OpenRouterServerToolDef;
 
 export interface OpenRouterResponse {
   id: string;
@@ -127,8 +134,14 @@ export class OpenRouterClient {
   constructor(private readonly config: ConfigService) {
     this.apiKey = this.config.get<string>('openRouter.apiKey', '');
     this.timeoutMs = this.config.get<number>('openRouter.timeoutMs', 30000);
-    this.appUrl = this.config.get<string>('openRouter.appUrl', 'https://arisa.app');
-    this.appTitle = this.config.get<string>('openRouter.appTitle', 'ARISA Smart Agriculture');
+    this.appUrl = this.config.get<string>(
+      'openRouter.appUrl',
+      'https://arisa.app',
+    );
+    this.appTitle = this.config.get<string>(
+      'openRouter.appTitle',
+      'ARISA Smart Agriculture',
+    );
   }
 
   /**
@@ -143,7 +156,7 @@ export class OpenRouterClient {
       const error = await response.json().catch(() => ({}));
       throw new OpenRouterError(
         response.status,
-        (error as any)?.error?.message || `OpenRouter HTTP ${response.status}`,
+        error?.error?.message || `OpenRouter HTTP ${response.status}`,
       );
     }
 
@@ -165,7 +178,7 @@ export class OpenRouterClient {
       const error = await response.json().catch(() => ({}));
       throw new OpenRouterError(
         response.status,
-        (error as any)?.error?.message || `OpenRouter HTTP ${response.status}`,
+        error?.error?.message || `OpenRouter HTTP ${response.status}`,
       );
     }
 
@@ -194,7 +207,9 @@ export class OpenRouterClient {
 
           if (trimmed.startsWith('data: ')) {
             try {
-              const chunk = JSON.parse(trimmed.slice(6)) as OpenRouterStreamChunk;
+              const chunk = JSON.parse(
+                trimmed.slice(6),
+              ) as OpenRouterStreamChunk;
 
               // Check for mid-stream errors
               if (chunk.error) {

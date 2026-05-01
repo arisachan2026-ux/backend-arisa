@@ -17,7 +17,12 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { SyncService } from './sync.service';
-import { SyncPushDto, SyncBatchDto, SyncAckDto, SessionSummaryDto } from './dto';
+import {
+  SyncPushDto,
+  SyncBatchDto,
+  SyncAckDto,
+  SessionSummaryDto,
+} from './dto';
 import { DeviceAuthGuard } from '../../common/guards/device-auth.guard';
 import { CurrentDevice } from '../../common/decorators/current-device.decorator';
 
@@ -32,10 +37,7 @@ export class SyncController {
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'Push single sync item from device' })
   @ApiResponse({ status: 202, description: 'Job accepted for processing' })
-  async push(
-    @Body() dto: SyncPushDto,
-    @CurrentDevice('id') deviceId: string,
-  ) {
+  async push(@Body() dto: SyncPushDto, @CurrentDevice('id') deviceId: string) {
     return this.syncService.push(dto, deviceId);
   }
 
@@ -70,7 +72,11 @@ export class SyncController {
   @Get('pull')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Pull updates from cloud to device' })
-  @ApiQuery({ name: 'since', description: 'ISO 8601 timestamp', required: true })
+  @ApiQuery({
+    name: 'since',
+    description: 'ISO 8601 timestamp',
+    required: true,
+  })
   @ApiQuery({ name: 'limit', description: 'Max items', required: false })
   @ApiResponse({ status: 200, description: 'Items to sync' })
   async pull(

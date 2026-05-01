@@ -7,7 +7,10 @@ export class RegisterDeviceDto {
   @MaxLength(100)
   deviceSerial: string;
 
-  @ApiProperty({ example: 'Farm Sensor Alpha', description: 'Human-readable device name' })
+  @ApiProperty({
+    example: 'Farm Sensor Alpha',
+    description: 'Human-readable device name',
+  })
   @IsString()
   @MaxLength(200)
   deviceName: string;

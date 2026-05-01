@@ -44,6 +44,10 @@ export const envValidationSchema = Joi.object({
   // CORS
   CORS_ORIGINS: Joi.string().default(''),
 
+  // OpenWeather
+  OPENWEATHER_API_KEY: Joi.string().default(''),
+  OPENWEATHER_CACHE_TTL_MINUTES: Joi.number().default(15),
+
   // Direct URL for Prisma migrations (bypasses PgBouncer)
   DIRECT_URL: Joi.string().default(''),
 });

@@ -25,7 +25,9 @@ export class SyncPushDto {
   @IsString()
   eventType: string;
 
-  @ApiProperty({ description: 'Timestamp when event occurred on device (ISO 8601)' })
+  @ApiProperty({
+    description: 'Timestamp when event occurred on device (ISO 8601)',
+  })
   @IsDateString()
   timestamp: string;
 

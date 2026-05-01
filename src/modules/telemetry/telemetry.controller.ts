@@ -1,8 +1,21 @@
 import {
-  Controller, Post, Get, Param, Query, Body,
-  UseGuards, HttpCode, HttpStatus,
+  Controller,
+  Post,
+  Get,
+  Param,
+  Query,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiSecurity, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiSecurity,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { TelemetryService } from './telemetry.service';
 import { TelemetryPushDto } from './dto/telemetry-push.dto';
 import { DeviceAuthGuard } from '../../common/guards/device-auth.guard';
@@ -30,13 +43,19 @@ export class TelemetryController {
   @Get('device/:deviceId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
-  @ApiOperation({ summary: 'Get telemetry history for a device (ownership check)' })
+  @ApiOperation({
+    summary: 'Get telemetry history for a device (ownership check)',
+  })
   @ApiQuery({ name: 'limit', required: false })
   async getHistory(
     @Param('deviceId') deviceId: string,
     @CurrentUser('id') userId: string,
     @Query('limit') limit?: number,
   ) {
-    return this.telemetryService.getHistory(deviceId, userId, limit ? Number(limit) : 50);
+    return this.telemetryService.getHistory(
+      deviceId,
+      userId,
+      limit ? Number(limit) : 50,
+    );
   }
 }

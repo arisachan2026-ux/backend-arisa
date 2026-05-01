@@ -37,9 +37,16 @@ const AVAILABLE_MODELS = [
     provider: 'Google',
     contextWindow: 1_048_576,
     maxOutput: 65_535,
-    inputPrice: 0.30,
-    outputPrice: 2.50,
-    capabilities: ['chat', 'vision', 'streaming', 'tools', 'structured-output', 'reasoning'],
+    inputPrice: 0.3,
+    outputPrice: 2.5,
+    capabilities: [
+      'chat',
+      'vision',
+      'streaming',
+      'tools',
+      'structured-output',
+      'reasoning',
+    ],
   },
   {
     alias: 'claude-haiku',
@@ -48,9 +55,16 @@ const AVAILABLE_MODELS = [
     provider: 'Anthropic',
     contextWindow: 200_000,
     maxOutput: 64_000,
-    inputPrice: 1.00,
-    outputPrice: 5.00,
-    capabilities: ['chat', 'vision', 'streaming', 'tools', 'structured-output', 'reasoning'],
+    inputPrice: 1.0,
+    outputPrice: 5.0,
+    capabilities: [
+      'chat',
+      'vision',
+      'streaming',
+      'tools',
+      'structured-output',
+      'reasoning',
+    ],
   },
 ];
 
@@ -121,7 +135,10 @@ export class AiGatewayService {
   private readonly rateLimitPerHour: number;
 
   // In-memory rate limit fallback (when Redis unavailable)
-  private readonly memoryRateLimit = new Map<string, { count: number; resetAt: number }>();
+  private readonly memoryRateLimit = new Map<
+    string,
+    { count: number; resetAt: number }
+  >();
 
   constructor(
     private readonly config: ConfigService,
@@ -129,11 +146,23 @@ export class AiGatewayService {
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
   ) {
-    this.defaultModel = this.config.get<string>('openRouter.defaultModel', 'google/gemini-2.5-flash');
-    this.fallbackModel = this.config.get<string>('openRouter.fallbackModel', 'anthropic/claude-haiku-4.5');
+    this.defaultModel = this.config.get<string>(
+      'openRouter.defaultModel',
+      'google/gemini-2.5-flash',
+    );
+    this.fallbackModel = this.config.get<string>(
+      'openRouter.fallbackModel',
+      'anthropic/claude-haiku-4.5',
+    );
     this.maxTokensCap = this.config.get<number>('openRouter.maxTokens', 8192);
-    this.rateLimitPerMin = this.config.get<number>('openRouter.userRateLimitPerMinute', 10);
-    this.rateLimitPerHour = this.config.get<number>('openRouter.userRateLimitPerHour', 100);
+    this.rateLimitPerMin = this.config.get<number>(
+      'openRouter.userRateLimitPerMinute',
+      10,
+    );
+    this.rateLimitPerHour = this.config.get<number>(
+      'openRouter.userRateLimitPerHour',
+      100,
+    );
   }
 
   // ─── Chat (Non-Streaming) ─────────────────────────────────
@@ -143,7 +172,10 @@ export class AiGatewayService {
 
     const model = this.resolveModel(dto.model);
     const messages = await this.buildMessages(dto, userId);
-    const maxTokens = Math.min(dto.maxTokens || this.maxTokensCap, this.maxTokensCap);
+    const maxTokens = Math.min(
+      dto.maxTokens || this.maxTokensCap,
+      this.maxTokensCap,
+    );
 
     const params: OpenRouterRequest = {
       model,
@@ -157,8 +189,10 @@ export class AiGatewayService {
     if (dto.reasoning) {
       params.reasoning = {};
       if (dto.reasoning.effort) params.reasoning.effort = dto.reasoning.effort;
-      if (dto.reasoning.maxTokens) params.reasoning.max_tokens = dto.reasoning.maxTokens;
-      if (dto.reasoning.exclude !== undefined) params.reasoning.exclude = dto.reasoning.exclude;
+      if (dto.reasoning.maxTokens)
+        params.reasoning.max_tokens = dto.reasoning.maxTokens;
+      if (dto.reasoning.exclude !== undefined)
+        params.reasoning.exclude = dto.reasoning.exclude;
     }
 
     // Web search (server tool, replaces deprecated plugins)
@@ -168,7 +202,10 @@ export class AiGatewayService {
 
     if (dto.responseFormat === 'json') {
       params.response_format = dto.jsonSchema
-        ? { type: 'json_schema', json_schema: { name: 'response', schema: dto.jsonSchema } }
+        ? {
+            type: 'json_schema',
+            json_schema: { name: 'response', schema: dto.jsonSchema },
+          }
         : { type: 'json_object' };
     }
 
@@ -179,7 +216,9 @@ export class AiGatewayService {
       response = await this.openRouter.chatCompletion(params);
     } catch (error) {
       if (error instanceof OpenRouterError && error.isRetryable) {
-        this.logger.warn(`Primary model failed (${error.statusCode}), trying fallback...`);
+        this.logger.warn(
+          `Primary model failed (${error.statusCode}), trying fallback...`,
+        );
         params.model = this.fallbackModel;
         response = await this.openRouter.chatCompletion(params);
       } else {
@@ -197,7 +236,11 @@ export class AiGatewayService {
     await this.saveRequest(userId, {
       requestType: 'chat',
       model: response.model,
-      input: { message: dto.message, model: dto.model, hasReasoning: !!dto.reasoning },
+      input: {
+        message: dto.message,
+        model: dto.model,
+        hasReasoning: !!dto.reasoning,
+      },
       output: content,
       usage,
       durationMs,
@@ -230,7 +273,10 @@ export class AiGatewayService {
 
     const model = this.resolveModel(dto.model);
     const messages = await this.buildMessages(dto, userId);
-    const maxTokens = Math.min(dto.maxTokens || this.maxTokensCap, this.maxTokensCap);
+    const maxTokens = Math.min(
+      dto.maxTokens || this.maxTokensCap,
+      this.maxTokensCap,
+    );
 
     const params: OpenRouterRequest = {
       model,
@@ -245,8 +291,10 @@ export class AiGatewayService {
     if (dto.reasoning) {
       params.reasoning = {};
       if (dto.reasoning.effort) params.reasoning.effort = dto.reasoning.effort;
-      if (dto.reasoning.maxTokens) params.reasoning.max_tokens = dto.reasoning.maxTokens;
-      if (dto.reasoning.exclude !== undefined) params.reasoning.exclude = dto.reasoning.exclude;
+      if (dto.reasoning.maxTokens)
+        params.reasoning.max_tokens = dto.reasoning.maxTokens;
+      if (dto.reasoning.exclude !== undefined)
+        params.reasoning.exclude = dto.reasoning.exclude;
     }
 
     // Web search (server tool)
@@ -278,7 +326,11 @@ export class AiGatewayService {
     await this.saveRequest(userId, {
       requestType: 'chat_stream',
       model: finalModel,
-      input: { message: dto.message, model: dto.model, hasReasoning: !!dto.reasoning },
+      input: {
+        message: dto.message,
+        model: dto.model,
+        hasReasoning: !!dto.reasoning,
+      },
       output: fullContent,
       usage: finalUsage,
       durationMs: Date.now() - startTime,
@@ -291,7 +343,8 @@ export class AiGatewayService {
     await this.enforceRateLimit(userId);
 
     const model = this.resolveModel(dto.model);
-    const systemPrompt = ANALYSIS_PROMPTS[dto.type] || ANALYSIS_PROMPTS['plant-disease'];
+    const systemPrompt =
+      ANALYSIS_PROMPTS[dto.type] || ANALYSIS_PROMPTS['plant-disease'];
 
     // Build user message with images and payload
     const contentParts: ContentPart[] = [];
@@ -314,11 +367,17 @@ export class AiGatewayService {
     }
 
     if (contentParts.length === 0) {
-      contentParts.push({ type: 'text', text: `Lakukan analisis tipe: ${dto.type}` });
+      contentParts.push({
+        type: 'text',
+        text: `Lakukan analisis tipe: ${dto.type}`,
+      });
     }
 
     const messages: OpenRouterMessage[] = [
-      { role: 'system', content: `${DEFAULT_SYSTEM_PROMPT}\n\n${systemPrompt}` },
+      {
+        role: 'system',
+        content: `${DEFAULT_SYSTEM_PROMPT}\n\n${systemPrompt}`,
+      },
       { role: 'user', content: contentParts },
     ];
 
@@ -336,8 +395,10 @@ export class AiGatewayService {
     if (dto.reasoning) {
       params.reasoning = {};
       if (dto.reasoning.effort) params.reasoning.effort = dto.reasoning.effort;
-      if (dto.reasoning.maxTokens) params.reasoning.max_tokens = dto.reasoning.maxTokens;
-      if (dto.reasoning.exclude !== undefined) params.reasoning.exclude = dto.reasoning.exclude;
+      if (dto.reasoning.maxTokens)
+        params.reasoning.max_tokens = dto.reasoning.maxTokens;
+      if (dto.reasoning.exclude !== undefined)
+        params.reasoning.exclude = dto.reasoning.exclude;
     }
 
     // Inject IoT context for analyze (D6 — deviceId exists on AnalyzeDto but was unused)
@@ -376,7 +437,11 @@ export class AiGatewayService {
     await this.saveRequest(userId, {
       requestType: `analyze_${dto.type}`,
       model: response.model,
-      input: { type: dto.type, payload: dto.payload, hasImages: !!dto.images?.length },
+      input: {
+        type: dto.type,
+        payload: dto.payload,
+        hasImages: !!dto.images?.length,
+      },
       output: parsedResult,
       usage: response.usage,
       durationMs,
@@ -438,7 +503,7 @@ export class AiGatewayService {
     let totalPromptTokens = 0;
     let totalCompletionTokens = 0;
     let totalCost = 0;
-    let totalRequests = requests.length;
+    const totalRequests = requests.length;
     let failedRequests = 0;
 
     for (const req of requests) {
@@ -476,14 +541,17 @@ export class AiGatewayService {
     return MODEL_MAP[alias] || this.defaultModel;
   }
 
-  private async buildMessages(dto: ChatDto, userId?: string): Promise<OpenRouterMessage[]> {
+  private async buildMessages(
+    dto: ChatDto,
+    userId?: string,
+  ): Promise<OpenRouterMessage[]> {
     const messages: OpenRouterMessage[] = [];
 
     // System prompt + IoT context
     let systemContent = dto.systemPrompt || DEFAULT_SYSTEM_PROMPT;
 
     // Inject IoT session context if requested
-    const shouldInjectIot = dto.deviceId && (dto.includeIotContext !== false);
+    const shouldInjectIot = dto.deviceId && dto.includeIotContext !== false;
     if (shouldInjectIot && userId) {
       const iotContext = await this.buildIotContext(userId, dto.deviceId!);
       if (iotContext) {
@@ -518,7 +586,10 @@ export class AiGatewayService {
    * Build IoT session context from recent SessionSummary records.
    * Injects the last 5 session conclusions as system context for the AI.
    */
-  private async buildIotContext(userId: string, deviceId: string): Promise<string> {
+  private async buildIotContext(
+    userId: string,
+    deviceId: string,
+  ): Promise<string> {
     try {
       const summaries = await this.prisma.sessionSummary.findMany({
         where: { userId, deviceId },
@@ -538,19 +609,25 @@ export class AiGatewayService {
 
       const contextLines = summaries.map((s, i) => {
         const date = s.sessionEnd.toLocaleString('id-ID', {
-          day: 'numeric', month: 'long', year: 'numeric',
-          hour: '2-digit', minute: '2-digit',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
         });
         let line = `[Sesi ${i + 1} — ${date}, ${s.dataPointCount} data point]\n${s.summary}`;
         if (s.metrics) line += `\nMetrik: ${JSON.stringify(s.metrics)}`;
         if (s.alerts) line += `\nAlerts: ${JSON.stringify(s.alerts)}`;
-        if (s.recommendations) line += `\nRekomendasi Edge: ${JSON.stringify(s.recommendations)}`;
+        if (s.recommendations)
+          line += `\nRekomendasi Edge: ${JSON.stringify(s.recommendations)}`;
         return line;
       });
 
       return `\n\n--- DATA LAHAN TERBARU (dari sensor IoT) ---\n${contextLines.join('\n\n')}`;
     } catch (error) {
-      this.logger.warn(`Failed to build IoT context: ${(error as Error).message}`);
+      this.logger.warn(
+        `Failed to build IoT context: ${(error as Error).message}`,
+      );
       return '';
     }
   }
@@ -575,7 +652,10 @@ export class AiGatewayService {
     try {
       const count = await this.redis.get(key);
       if (count !== null && parseInt(count, 10) >= this.rateLimitPerMin) {
-        throw new HttpException(ErrorCode.RATE_LIMIT_EXCEEDED, HttpStatus.TOO_MANY_REQUESTS);
+        throw new HttpException(
+          ErrorCode.RATE_LIMIT_EXCEEDED,
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
       }
 
       // Increment with 60s expiry using proper accessor
@@ -585,7 +665,11 @@ export class AiGatewayService {
         return;
       }
     } catch (error) {
-      if (error instanceof HttpException && (error as HttpException).getStatus() === HttpStatus.TOO_MANY_REQUESTS) throw error;
+      if (
+        error instanceof HttpException &&
+        error.getStatus() === HttpStatus.TOO_MANY_REQUESTS
+      )
+        throw error;
       // Redis unavailable — fall through to in-memory
     }
 
@@ -593,7 +677,10 @@ export class AiGatewayService {
     const entry = this.memoryRateLimit.get(key);
     if (entry && now < entry.resetAt) {
       if (entry.count >= this.rateLimitPerMin) {
-        throw new HttpException(ErrorCode.RATE_LIMIT_EXCEEDED, HttpStatus.TOO_MANY_REQUESTS);
+        throw new HttpException(
+          ErrorCode.RATE_LIMIT_EXCEEDED,
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
       }
       entry.count++;
     } else {
@@ -618,16 +705,18 @@ export class AiGatewayService {
           userId,
           requestType: data.requestType,
           provider: 'openrouter',
-          inputPayload: data.input as any,
-          outputResult: data.output as any,
+          inputPayload: data.input,
+          outputResult: data.output,
           status: 'completed',
           durationMs: data.durationMs,
-          tokenUsage: data.usage as any,
+          tokenUsage: data.usage,
         },
       });
     } catch (error) {
       // Don't crash if audit logging fails
-      this.logger.error(`Failed to save AI request: ${(error as Error).message}`);
+      this.logger.error(
+        `Failed to save AI request: ${(error as Error).message}`,
+      );
     }
   }
 
@@ -637,10 +726,15 @@ export class AiGatewayService {
         return new ServiceUnavailableException(ErrorCode.AI_QUOTA_EXCEEDED);
       }
       if (error.statusCode === 429) {
-        return new HttpException(ErrorCode.RATE_LIMIT_EXCEEDED, HttpStatus.TOO_MANY_REQUESTS);
+        return new HttpException(
+          ErrorCode.RATE_LIMIT_EXCEEDED,
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
       }
       if (error.statusCode === 401) {
-        return new ServiceUnavailableException(ErrorCode.AI_PROVIDER_UNAVAILABLE);
+        return new ServiceUnavailableException(
+          ErrorCode.AI_PROVIDER_UNAVAILABLE,
+        );
       }
       return new ServiceUnavailableException(
         `${ErrorCode.AI_REQUEST_FAILED}: ${error.message}`,

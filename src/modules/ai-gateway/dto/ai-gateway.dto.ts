@@ -1,7 +1,17 @@
 import {
-  IsString, IsOptional, IsEnum, IsNumber, IsBoolean,
-  IsArray, ValidateNested, IsObject, MaxLength, Min, Max,
-  ArrayMaxSize, IsIn,
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  IsBoolean,
+  IsArray,
+  ValidateNested,
+  IsObject,
+  MaxLength,
+  Min,
+  Max,
+  ArrayMaxSize,
+  IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -40,7 +50,8 @@ export class ChatMessageDto {
 export class ReasoningDto {
   @ApiPropertyOptional({
     enum: ['xhigh', 'high', 'medium', 'low', 'minimal', 'none'],
-    description: 'How hard the model should think. Maps to OpenRouter reasoning.effort.',
+    description:
+      'How hard the model should think. Maps to OpenRouter reasoning.effort.',
     example: 'medium',
   })
   @IsOptional()
@@ -48,7 +59,8 @@ export class ReasoningDto {
   effort?: 'xhigh' | 'high' | 'medium' | 'low' | 'minimal' | 'none';
 
   @ApiPropertyOptional({
-    description: 'Max reasoning tokens (Anthropic: min 1024). Overrides effort.',
+    description:
+      'Max reasoning tokens (Anthropic: min 1024). Overrides effort.',
     example: 2000,
   })
   @IsOptional()
@@ -58,7 +70,8 @@ export class ReasoningDto {
   maxTokens?: number;
 
   @ApiPropertyOptional({
-    description: 'If true, model thinks internally but reasoning is excluded from response.',
+    description:
+      'If true, model thinks internally but reasoning is excluded from response.',
     default: false,
   })
   @IsOptional()
@@ -74,12 +87,17 @@ export class ChatDto {
   @MaxLength(32000)
   message: string;
 
-  @ApiPropertyOptional({ enum: ['gemini-flash', 'claude-haiku'], default: 'gemini-flash' })
+  @ApiPropertyOptional({
+    enum: ['gemini-flash', 'claude-haiku'],
+    default: 'gemini-flash',
+  })
   @IsOptional()
   @IsIn(['gemini-flash', 'claude-haiku'])
   model?: 'gemini-flash' | 'claude-haiku';
 
-  @ApiPropertyOptional({ description: 'Previous messages for multi-turn context' })
+  @ApiPropertyOptional({
+    description: 'Previous messages for multi-turn context',
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -120,14 +138,19 @@ export class ChatDto {
   @IsIn(['text', 'json'])
   responseFormat?: 'text' | 'json';
 
-  @ApiPropertyOptional({ description: 'JSON Schema for structured output (when responseFormat=json)' })
+  @ApiPropertyOptional({
+    description: 'JSON Schema for structured output (when responseFormat=json)',
+  })
   @IsOptional()
   @IsObject()
   jsonSchema?: object;
 
   // ─── NEW: Reasoning/Thinking ─────────────────────────────
 
-  @ApiPropertyOptional({ description: 'Control AI reasoning/thinking depth', type: ReasoningDto })
+  @ApiPropertyOptional({
+    description: 'Control AI reasoning/thinking depth',
+    type: ReasoningDto,
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => ReasoningDto)
@@ -154,7 +177,8 @@ export class ChatDto {
   deviceId?: string;
 
   @ApiPropertyOptional({
-    description: 'Whether to include IoT session context. Defaults to true when deviceId is provided.',
+    description:
+      'Whether to include IoT session context. Defaults to true when deviceId is provided.',
     default: true,
   })
   @IsOptional()
@@ -198,7 +222,10 @@ export class AnalyzeDto {
   @IsString()
   deviceId?: string;
 
-  @ApiPropertyOptional({ description: 'Control reasoning depth', type: ReasoningDto })
+  @ApiPropertyOptional({
+    description: 'Control reasoning depth',
+    type: ReasoningDto,
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => ReasoningDto)

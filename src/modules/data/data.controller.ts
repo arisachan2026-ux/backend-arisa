@@ -1,8 +1,23 @@
 import {
-  Controller, Get, Post, Patch, Delete,
-  Param, Body, Query, UseGuards, HttpCode, HttpStatus,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { DataService } from './data.service';
 import { CreateDataDto, UpdateDataDto } from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -18,10 +33,7 @@ export class DataController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new data record' })
-  async create(
-    @CurrentUser('id') userId: string,
-    @Body() dto: CreateDataDto,
-  ) {
+  async create(@CurrentUser('id') userId: string, @Body() dto: CreateDataDto) {
     return this.dataService.create(userId, dto);
   }
 
@@ -42,10 +54,7 @@ export class DataController {
   @Get(':id')
   @ApiOperation({ summary: 'Get single data record (ownership check)' })
   @ApiResponse({ status: 403, description: 'Not data owner' })
-  async findOne(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.dataService.findOne(id, userId);
   }
 
@@ -61,10 +70,7 @@ export class DataController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete data record (ownership check)' })
-  async remove(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.dataService.remove(id, userId);
   }
 }

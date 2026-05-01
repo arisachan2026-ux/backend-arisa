@@ -13,7 +13,10 @@ export class DataService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(userId: string, data: { dataType: string; dataJson: any; deviceId?: string }) {
+  async create(
+    userId: string,
+    data: { dataType: string; dataJson: any; deviceId?: string },
+  ) {
     const record = await this.prisma.coreData.create({
       data: {
         userId,
@@ -26,7 +29,10 @@ export class DataService {
     return record;
   }
 
-  async findAll(userId: string, query: { page?: number; limit?: number; dataType?: string }) {
+  async findAll(
+    userId: string,
+    query: { page?: number; limit?: number; dataType?: string },
+  ) {
     const page = query.page || 1;
     const limit = Math.min(query.limit || 20, 100);
     const skip = (page - 1) * limit;
@@ -66,13 +72,20 @@ export class DataService {
   }
 
   async findOne(recordId: string, userId: string) {
-    const record = await this.prisma.coreData.findUnique({ where: { id: recordId } });
+    const record = await this.prisma.coreData.findUnique({
+      where: { id: recordId },
+    });
     if (!record) throw new NotFoundException(ErrorCode.DATA_NOT_FOUND);
-    if (record.userId !== userId) throw new ForbiddenException(ErrorCode.DATA_OWNERSHIP_DENIED);
+    if (record.userId !== userId)
+      throw new ForbiddenException(ErrorCode.DATA_OWNERSHIP_DENIED);
     return record;
   }
 
-  async update(recordId: string, userId: string, data: { dataJson?: any; dataType?: string }) {
+  async update(
+    recordId: string,
+    userId: string,
+    data: { dataJson?: any; dataType?: string },
+  ) {
     const record = await this.findOne(recordId, userId);
     return this.prisma.coreData.update({
       where: { id: record.id },

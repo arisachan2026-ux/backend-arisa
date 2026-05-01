@@ -7,7 +7,10 @@ export class UpdateDataDto {
   @IsObject()
   dataJson?: Record<string, any>;
 
-  @ApiPropertyOptional({ example: 'sensor_reading', description: 'Updated data type' })
+  @ApiPropertyOptional({
+    example: 'sensor_reading',
+    description: 'Updated data type',
+  })
   @IsOptional()
   @IsString()
   dataType?: string;

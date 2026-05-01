@@ -2,8 +2,6 @@
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -74,6 +72,7 @@ model User {
   notifications   Notification[]
   aiRequests      AiRequest[]
   sessionSummaries SessionSummary[]
+  sawahList       Sawah[]
 
   @@map("users")
 }
@@ -272,4 +271,22 @@ model SessionSummary {
   @@index([userId, createdAt])
   @@index([deviceId, sessionStart])
   @@map("session_summaries")
+}
+
+/// Sawah (rice paddy) location — stores coordinates for weather lookups.
+model Sawah {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  name       String
+  latitude   Float
+  longitude  Float
+  luasHektar Float?   @map("luas_hektar")
+  alamat     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sawah")
 }

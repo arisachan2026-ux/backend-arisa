@@ -41,7 +41,10 @@ export class DeviceController {
   @ApiOperation({
     summary: 'Register a new device (called by Pi on first boot)',
   })
-  @ApiResponse({ status: 201, description: 'Device registered, token returned' })
+  @ApiResponse({
+    status: 201,
+    description: 'Device registered, token returned',
+  })
   @ApiResponse({ status: 401, description: 'Invalid registration secret' })
   @ApiResponse({ status: 409, description: 'Device serial already exists' })
   async register(@Body() dto: RegisterDeviceDto) {
@@ -121,10 +124,7 @@ export class DeviceController {
   @ApiSecurity('device-token')
   @ApiOperation({ summary: 'Send heartbeat from device' })
   @ApiResponse({ status: 200, description: 'Heartbeat acknowledged' })
-  async heartbeat(
-    @Param('id') deviceId: string,
-    @Body() dto: HeartbeatDto,
-  ) {
+  async heartbeat(@Param('id') deviceId: string, @Body() dto: HeartbeatDto) {
     return this.deviceService.heartbeat(deviceId, dto);
   }
 }

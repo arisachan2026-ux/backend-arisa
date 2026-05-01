@@ -48,6 +48,7 @@ graph TB
         AUTH[Auth Module<br/>Supabase JWT]
         SYNC[Sync Engine<br/>Idempotent Push]
         AI[AI Gateway<br/>OpenRouter]
+        WEATHER[Weather Monitor<br/>OpenWeather API]
         ADMIN[Admin Panel<br/>RBAC]
         NOTIF[Notifications]
     end
@@ -73,6 +74,7 @@ graph TB
     GW --> SYNC
     GW --> AI
     GW --> ADMIN
+    GW --> WEATHER
     GW --> NOTIF
 
     AUTH --> PG
@@ -168,7 +170,8 @@ src/
 │   ├── notification/     # In-app notifications
 │   ├── sync/             # Push, batch, ack, pull, session-summary
 │   ├── telemetry/        # Device hardware metrics
-│   └── user/             # Profile management + delete account
+│   ├── user/             # Profile management + delete account
+│   └── weather/          # Cuaca monitoring + rekomendasi pertanian
 ├── prisma/               # PrismaService with pg Pool adapter
 ├── redis/                # RedisService with graceful fallback
 └── supabase/             # Public + Admin client wrappers
@@ -217,7 +220,7 @@ graph LR
 ### Full Endpoint Table
 
 <details>
-<summary><strong>Klik untuk lihat semua 41 endpoints</strong></summary>
+<summary><strong>Klik untuk lihat semua 48 endpoints</strong></summary>
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
@@ -265,6 +268,14 @@ graph LR
 | `GET` | `/notifications` | JWT | List + unread count |
 | `PATCH` | `/notifications/:id/read` | JWT | Mark as read |
 | `PATCH` | `/notifications/read-all` | JWT | Mark all as read |
+| **Cuaca (Weather)** ||||
+| `GET` | `/cuaca` | JWT | Cuaca + prakiraan + rekomendasi (by sawah_id or lat/lon) |
+| **Sawah** ||||
+| `POST` | `/sawah` | JWT | Daftarkan lokasi sawah baru |
+| `GET` | `/sawah` | JWT | List semua sawah milik user |
+| `GET` | `/sawah/:id` | JWT | Detail sawah (ownership check) |
+| `PATCH` | `/sawah/:id` | JWT | Update data sawah |
+| `DELETE` | `/sawah/:id` | JWT | Hapus sawah |
 | **Admin** ||||
 | `GET` | `/admin/dashboard` | RBAC | Stats (users, devices, AI, sessions) |
 | `GET` | `/admin/users` | RBAC | List all users |
@@ -454,6 +465,8 @@ Error response selalu konsisten:
 | `OPENROUTER_TIMEOUT_MS` | `30000` | Timeout per request |
 | `AI_USER_RATE_LIMIT_PER_MINUTE` | `10` | AI rate limit per menit per user |
 | `AI_USER_RATE_LIMIT_PER_HOUR` | `100` | AI rate limit per jam per user |
+| `OPENWEATHER_API_KEY` | `''` | API key OpenWeather (daftar gratis di openweathermap.org) |
+| `OPENWEATHER_CACHE_TTL_MINUTES` | `15` | Cache cuaca dalam menit |
 
 Semua ada di [`.env.example`](./.env.example).
 
@@ -508,13 +521,15 @@ Folder [`docs/implementation_front/`](./docs/implementation_front/) berisi 12 do
 
 ## Current Status
 
-Sistem ini sudah jalan dan terdokumentasi. Build clean, Swagger docs lengkap, 41 endpoints terimplementasi.
+Sistem ini sudah jalan dan terdokumentasi. Build clean, Swagger docs lengkap, 48 endpoints terimplementasi.
 
 Yang sudah selesai:
 - ✅ Auth (register, login, OAuth, refresh, logout, revoke-all)
 - ✅ Device lifecycle (register → pair → heartbeat → revoke)
 - ✅ Sync engine (push, batch, ack, pull, session-summary)
 - ✅ AI gateway (chat, stream, analyze, history + IoT context)
+- ✅ Weather monitoring (cuaca real-time, prakiraan 5 hari, rekomendasi pertanian)
+- ✅ Sawah management (CRUD lokasi sawah + koordinat untuk cuaca)
 - ✅ Admin management (dashboard, user/device management, audit logs)
 - ✅ Rate limiting, CORS, Helmet, validation pipes
 - ✅ Dockerfile + docker-compose
@@ -532,7 +547,7 @@ Yang belum:
 
 > Bagian ini untuk AI assistant atau developer baru yang akan melanjutkan development.
 
-7 hal yang harus dipahami sebelum menyentuh kode ini:
+8 hal yang harus dipahami sebelum menyentuh kode ini:
 
 1. **Prisma pakai driver adapter** — `PrismaService` extends `PrismaClient` dengan `@prisma/adapter-pg` dan `pg` Pool langsung. Bukan Prisma default connection. `connectionTimeoutMillis: 5000` sudah diset manual karena pg Pool default-nya 0 (infinite). Lihat [`prisma.service.ts`](./src/prisma/prisma.service.ts).
 
@@ -547,6 +562,8 @@ Yang belum:
 6. **Error messages bilingual** — Setiap `ErrorCode` punya `message` (English, teknikal) dan `userMessage` (Indonesia, untuk ditampilin ke petani). Source of truth: [`error-messages.ts`](./src/common/constants/error-messages.ts). `HttpExceptionFilter` otomatis attach `userMessage` ke response.
 
 7. **Session summaries = jembatan IoT-AI** — Tanpa data di tabel `SessionSummary`, fungsi `buildIotContext()` return string kosong dan AI jawab tanpa konteks pertanian. Endpoint `POST /sync/session-summary` harus dipanggil secara periodik oleh Pi.
+
+8. **Weather module = dual-layer cache** — `WeatherService` pakai Redis (15 min TTL) sebagai primary cache, dengan in-memory `Map` sebagai fallback kalau Redis mati. Koordinat di-round ke 2 desimal untuk cache key consistency. Rekomendasi pertanian di-generate oleh `WeatherRecommendationEngine` berdasarkan 10+ rules yang dikalibrasi untuk padi sawah tropis. OpenWeather free tier (Current + Forecast5) — bukan One Call 3.0 — karena nggak perlu bayar subscription terpisah.
 
 ---
 

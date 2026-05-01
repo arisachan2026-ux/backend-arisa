@@ -1,10 +1,22 @@
 import {
-  Controller, Post, Get, Body, Query, Res,
-  UseGuards, HttpCode, HttpStatus, Header,
+  Controller,
+  Post,
+  Get,
+  Body,
+  Query,
+  Res,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  Header,
 } from '@nestjs/common';
 import {
-  ApiTags, ApiOperation, ApiBearerAuth, ApiQuery,
-  ApiResponse, ApiProduces,
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiResponse,
+  ApiProduces,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { AiGatewayService } from './ai-gateway.service';
@@ -29,10 +41,7 @@ export class AiGatewayController {
   @ApiOperation({ summary: 'Chat with AI (non-streaming)' })
   @ApiResponse({ status: 200, description: 'AI response returned' })
   @ApiResponse({ status: 429, description: 'Rate limit exceeded' })
-  async chat(
-    @CurrentUser('id') userId: string,
-    @Body() dto: ChatDto,
-  ) {
+  async chat(@CurrentUser('id') userId: string, @Body() dto: ChatDto) {
     return this.aiService.chat(userId, dto);
   }
 
@@ -64,7 +73,9 @@ export class AiGatewayController {
 
         // Send content chunks
         if (content) {
-          res.write(`data: ${JSON.stringify({ type: 'content', content })}\n\n`);
+          res.write(
+            `data: ${JSON.stringify({ type: 'content', content })}\n\n`,
+          );
         }
 
         // Send final usage stats
@@ -100,12 +111,11 @@ export class AiGatewayController {
 
   @Post('analyze')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Structured AI analysis (plant disease, soil, etc.)' })
+  @ApiOperation({
+    summary: 'Structured AI analysis (plant disease, soil, etc.)',
+  })
   @ApiResponse({ status: 200, description: 'Structured JSON analysis result' })
-  async analyze(
-    @CurrentUser('id') userId: string,
-    @Body() dto: AnalyzeDto,
-  ) {
+  async analyze(@CurrentUser('id') userId: string, @Body() dto: AnalyzeDto) {
     return this.aiService.analyze(userId, dto);
   }
 
@@ -115,10 +125,7 @@ export class AiGatewayController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Image analysis via AI vision' })
   @ApiResponse({ status: 200, description: 'Vision analysis result' })
-  async vision(
-    @CurrentUser('id') userId: string,
-    @Body() dto: AnalyzeDto,
-  ) {
+  async vision(@CurrentUser('id') userId: string, @Body() dto: AnalyzeDto) {
     // Vision uses the same analyze flow but with images required
     if (!dto.images?.length) {
       dto.images = [];

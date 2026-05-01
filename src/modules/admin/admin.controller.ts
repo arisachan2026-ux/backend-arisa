@@ -1,8 +1,22 @@
 import {
-  Controller, Get, Post, Patch, Param, Query, Body,
-  UseGuards, HttpCode, HttpStatus,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Param,
+  Query,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { AuditService } from '../audit/audit.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -23,7 +37,9 @@ export class AdminController {
   ) {}
 
   @Get('dashboard')
-  @ApiOperation({ summary: 'Get admin dashboard stats (includes AI & session counts)' })
+  @ApiOperation({
+    summary: 'Get admin dashboard stats (includes AI & session counts)',
+  })
   async dashboard() {
     return this.adminService.getDashboard();
   }
@@ -119,7 +135,11 @@ export class AdminController {
   @Roles(UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Change user role (SUPER_ADMIN only)' })
-  @ApiBody({ schema: { properties: { role: { type: 'string', enum: ['USER', 'ADMIN'] } } } })
+  @ApiBody({
+    schema: {
+      properties: { role: { type: 'string', enum: ['USER', 'ADMIN'] } },
+    },
+  })
   async updateUserRole(
     @Param('id') userId: string,
     @Body('role') role: string,
@@ -131,7 +151,11 @@ export class AdminController {
   @Patch('users/:id/status')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Change user status (ACTIVE/SUSPENDED)' })
-  @ApiBody({ schema: { properties: { status: { type: 'string', enum: ['ACTIVE', 'SUSPENDED'] } } } })
+  @ApiBody({
+    schema: {
+      properties: { status: { type: 'string', enum: ['ACTIVE', 'SUSPENDED'] } },
+    },
+  })
   async updateUserStatus(
     @Param('id') userId: string,
     @Body('status') status: string,

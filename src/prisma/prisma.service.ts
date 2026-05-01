@@ -24,9 +24,9 @@ export class PrismaService
     // (pg Pool defaults to 0 = no timeout, unlike Prisma 6's 5s default)
     const pool = new Pool({
       connectionString: databaseUrl,
-      connectionTimeoutMillis: 5000,  // 5s — fail fast if DB unreachable
-      idleTimeoutMillis: 30000,       // 30s — close idle connections
-      max: 10,                        // Max pool size
+      connectionTimeoutMillis: 5000, // 5s — fail fast if DB unreachable
+      idleTimeoutMillis: 30000, // 30s — close idle connections
+      max: 10, // Max pool size
     });
     const adapter = new PrismaPg(pool);
 

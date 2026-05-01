@@ -46,7 +46,11 @@ export class AdminService {
     return {
       users: { total: totalUsers, active: activeUsers },
       devices: { total: totalDevices, paired: pairedDevices },
-      sync: { total: totalSyncJobs, pending: pendingSyncJobs, failed: failedSyncJobs },
+      sync: {
+        total: totalSyncJobs,
+        pending: pendingSyncJobs,
+        failed: failedSyncJobs,
+      },
       data: { total: totalDataRecords },
       ai: { total: totalAiRequests, today: todayAiRequests },
       sessions: { total: totalSessionSummaries },
@@ -62,14 +66,22 @@ export class AdminService {
         skip: (page - 1) * limit,
         take: limit,
         select: {
-          id: true, email: true, name: true, role: true,
-          status: true, lastLoginAt: true, createdAt: true,
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          status: true,
+          lastLoginAt: true,
+          createdAt: true,
           _count: { select: { devices: true, coreData: true } },
         },
       }),
       this.prisma.user.count(),
     ]);
-    return { data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
+    return {
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async listDevices(page = 1, limit = 20) {
@@ -80,14 +92,22 @@ export class AdminService {
         skip: (page - 1) * limit,
         take: limit,
         select: {
-          id: true, deviceName: true, deviceSerial: true,
-          pairingStatus: true, status: true, firmwareVersion: true,
-          lastSeenAt: true, createdAt: true,
+          id: true,
+          deviceName: true,
+          deviceSerial: true,
+          pairingStatus: true,
+          status: true,
+          firmwareVersion: true,
+          lastSeenAt: true,
+          createdAt: true,
         },
       }),
       this.prisma.device.count(),
     ]);
-    return { data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
+    return {
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async listSyncJobs(page = 1, limit = 20, status?: string) {
@@ -104,7 +124,10 @@ export class AdminService {
       }),
       this.prisma.syncJob.count({ where }),
     ]);
-    return { data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
+    return {
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async disableDevice(deviceId: string, adminId: string) {
@@ -169,7 +192,9 @@ export class AdminService {
       metadata: { oldRole: user.role, newRole: role },
     });
 
-    this.logger.warn(`User ${userId} role changed to ${role} by admin ${adminId}`);
+    this.logger.warn(
+      `User ${userId} role changed to ${role} by admin ${adminId}`,
+    );
 
     return { message: 'Role updated', userId, role: updated.role };
   }
@@ -195,7 +220,9 @@ export class AdminService {
       metadata: { oldStatus: user.status, newStatus: status },
     });
 
-    this.logger.warn(`User ${userId} status changed to ${status} by admin ${adminId}`);
+    this.logger.warn(
+      `User ${userId} status changed to ${status} by admin ${adminId}`,
+    );
 
     return { message: 'Status updated', userId, status: updated.status };
   }
@@ -225,6 +252,9 @@ export class AdminService {
       }),
       this.prisma.sessionSummary.count(),
     ]);
-    return { data: items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
+    return {
+      data: items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
   }
 }

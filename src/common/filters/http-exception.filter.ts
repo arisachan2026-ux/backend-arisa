@@ -55,16 +55,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     // Look up user-friendly Indonesian message for the error code
-    const userMessage = ERROR_MESSAGES[errorCode as ErrorCode]
-      || ERROR_MESSAGES[this.statusToErrorCode(statusCode) as ErrorCode]
-      || 'Terjadi kesalahan. Coba lagi nanti.';
+    const userMessage =
+      ERROR_MESSAGES[errorCode as ErrorCode] ||
+      ERROR_MESSAGES[this.statusToErrorCode(statusCode) as ErrorCode] ||
+      'Terjadi kesalahan. Coba lagi nanti.';
 
     const errorResponse = {
       success: false,
       error: {
         code: errorCode,
-        message,               // Technical message (for debugging / dev)
-        userMessage,           // Bahasa Indonesia (for display to farmers)
+        message, // Technical message (for debugging / dev)
+        userMessage, // Bahasa Indonesia (for display to farmers)
         statusCode,
       },
       meta: {

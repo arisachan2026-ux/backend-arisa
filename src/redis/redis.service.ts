@@ -56,9 +56,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         );
       });
     } catch (error) {
-      this.logger.warn(
-        'Redis initialization failed — running without cache',
-      );
+      this.logger.warn('Redis initialization failed — running without cache');
     }
   }
 

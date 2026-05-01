@@ -17,12 +17,13 @@ async function bootstrap() {
 
   // ── CORS ────────────────────────────────────────────────────
   app.enableCors({
-    origin: process.env.NODE_ENV === 'production'
-      ? (process.env.CORS_ORIGINS || '')
-          .split(',')
-          .map(s => s.trim())
-          .filter(Boolean)
-      : true, // Allow all in development
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? (process.env.CORS_ORIGINS || '')
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : true, // Allow all in development
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
@@ -60,8 +61,8 @@ async function bootstrap() {
     .setTitle('ARISA Cloud Backend API')
     .setDescription(
       'Cloud backend API for the ARISA hybrid IoT agricultural system. ' +
-      'Provides authentication, device management, data sync, AI gateway, ' +
-      'and monitoring capabilities.',
+        'Provides authentication, device management, data sync, AI gateway, ' +
+        'and monitoring capabilities.',
     )
     .setVersion('1.0.0')
     .addBearerAuth(

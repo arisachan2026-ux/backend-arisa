@@ -28,9 +28,10 @@ export interface ApiResponse<T> {
  * See docs/01-ARCHITECTURE.md — Success Response format.
  */
 @Injectable()
-export class TransformInterceptor<T>
-  implements NestInterceptor<T, ApiResponse<T>>
-{
+export class TransformInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T>
+> {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
@@ -54,9 +55,12 @@ export class TransformInterceptor<T>
           // Preserve all fields except 'pagination' itself
           const { pagination: _, data: innerData, ...extraFields } = data;
           // If response has a 'data' key, use it; otherwise use all remaining fields
-          responseData = innerData !== undefined
-            ? (Object.keys(extraFields).length > 0 ? { ...extraFields, data: innerData } : innerData)
-            : extraFields;
+          responseData =
+            innerData !== undefined
+              ? Object.keys(extraFields).length > 0
+                ? { ...extraFields, data: innerData }
+                : innerData
+              : extraFields;
         }
 
         return {

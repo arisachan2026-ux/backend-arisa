@@ -1,8 +1,20 @@
 import {
-  Controller, Get, Patch, Post, Param, Query,
-  UseGuards, HttpCode, HttpStatus,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Param,
+  Query,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { NotificationService } from './notification.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -29,10 +41,7 @@ export class NotificationController {
   @Patch(':id/read')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Mark notification as read' })
-  async markRead(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async markRead(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.notificationService.markRead(id, userId);
   }
 

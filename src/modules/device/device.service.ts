@@ -66,9 +66,7 @@ export class DeviceService {
       },
     });
 
-    this.logger.log(
-      `Device registered: ${device.id} (${device.deviceSerial})`,
-    );
+    this.logger.log(`Device registered: ${device.id} (${device.deviceSerial})`);
 
     return {
       deviceId: device.id,
@@ -160,9 +158,7 @@ export class DeviceService {
     }
 
     // Check if already paired to this user
-    const existingOwnership = device.owners.find(
-      (o) => o.userId === userId,
-    );
+    const existingOwnership = device.owners.find((o) => o.userId === userId);
     if (existingOwnership) {
       throw new ConflictException(ErrorCode.DEVICE_ALREADY_PAIRED);
     }
@@ -186,9 +182,7 @@ export class DeviceService {
       }),
     ]);
 
-    this.logger.log(
-      `Device ${dto.deviceId} paired to user ${userId}`,
-    );
+    this.logger.log(`Device ${dto.deviceId} paired to user ${userId}`);
 
     return {
       message: 'Device paired successfully',
@@ -306,7 +300,9 @@ export class DeviceService {
       });
     }
 
-    this.logger.log(`Device ${deviceId} revoked from user ${userId} (remaining owners: ${remainingOwners})`);
+    this.logger.log(
+      `Device ${deviceId} revoked from user ${userId} (remaining owners: ${remainingOwners})`,
+    );
 
     return { message: 'Device revoked' };
   }

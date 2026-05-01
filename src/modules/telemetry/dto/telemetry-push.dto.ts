@@ -2,7 +2,10 @@ import { IsNumber, IsOptional, IsString, IsObject } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class TelemetryPushDto {
-  @ApiPropertyOptional({ example: 45.2, description: 'CPU temperature in Celsius' })
+  @ApiPropertyOptional({
+    example: 45.2,
+    description: 'CPU temperature in Celsius',
+  })
   @IsOptional()
   @IsNumber()
   cpuTemp?: number;
@@ -22,17 +25,26 @@ export class TelemetryPushDto {
   @IsNumber()
   diskUsage?: number;
 
-  @ApiPropertyOptional({ example: 3600, description: 'System uptime in seconds' })
+  @ApiPropertyOptional({
+    example: 3600,
+    description: 'System uptime in seconds',
+  })
   @IsOptional()
   @IsNumber()
   uptime?: number;
 
-  @ApiPropertyOptional({ example: 'connected', description: 'Network connectivity status' })
+  @ApiPropertyOptional({
+    example: 'connected',
+    description: 'Network connectivity status',
+  })
   @IsOptional()
   @IsString()
   networkStatus?: string;
 
-  @ApiPropertyOptional({ example: 'charging', description: 'Battery status (if applicable)' })
+  @ApiPropertyOptional({
+    example: 'charging',
+    description: 'Battery status (if applicable)',
+  })
   @IsOptional()
   @IsString()
   batteryStatus?: string;
